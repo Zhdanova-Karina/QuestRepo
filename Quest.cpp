@@ -1,16 +1,19 @@
-// Quest.cpp : ?ч?ч эп?? ц?н?я?ач э??в?а? "main". ?н?ц? ?п?а?п?чцф а ?пвп??азп?чцф з?д?????а? дя??яп???.
+// Quest.cpp : ?Г·?Г· ГЅГЇ?? Г¶?Г­?Гї?Г Г· ГЅ??Гў?Г ? "main". ?Г­?Г¶? ?ГЇ?Г ?ГЇ?Г·Г¶Гґ Г  ?ГЇГўГЇ??Г Г§ГЇ?Г·Г¶Гґ Г§?Г¤?????Г ? Г¤Гї??ГїГЇ???.
 //
 
 #pragma warning(disable : 4996)
 #define CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
+#include <locale.h>
+#include <conio.h>
+#include <stdio.h>
 
-#define MAX_DALMATIANS 5
+#define MAX_DALMATIANS 4
 
 struct Dalmatian {
     char name[30];
-    bool found;
+    bool found = false;
 };
 
 struct Player {
@@ -21,100 +24,269 @@ struct Player {
 struct PlaceWithDalmatian {
     char name[30];
     Dalmatian dalmatian;
-    bool found = false; /*ц?п?п?п нп??пча??? ?? ?п?н??*/
-    bool placeActive = true; /*??цч? пвчаз?? н?ф д?ацвп*/
+    bool existDalmatian; 
 };
 
 struct Location {
     char name[30];
-    int countDalmatins;
+    int countDalmatins, countPlace;
     Dalmatian dalmatians[MAX_DALMATIANS];
-    PlaceWithDalmatian place;
+    PlaceWithDalmatian place[10];
 };
 
-struct Level {
-    int levelNumb;
-    bool levelPassed;
-    Location location;
+struct Cage {
+    char inputCode[4];
+    char answerCode[4];
 };
-void dalmatianFound(Player& player, PlaceWithDalmatian& place);
 
+/*functions*/
+void dalmatianFound(Player& player, Location& location, Location& printDogs, int number);
 void getName(char* name);
-
 int StartPlay();
-
 int AreYouShureExit();
+int PrintLocationPlace(Location& location);
+void Level_1(Player& player, Location& location, Location& printDogs);
+void Level_2(Player& player, Location& location, Location& printDogs, Cage& cage, int countALLdalmatins);
+void ViewingFoundDalmatians(Player& player, Location& printDogs);
+int TransferLastLocation(Player& player, Location& location, Location& printDogs, int countALLdalmatins);
+void CodeOfCage(Player& player, Location& location, Location& printDogs, Cage& cage, int number);
+int getHint();
 
 int main()
 {
-    printf("??????? ????\n?п?зп?а?: ??ацв нп??пча???з\n??????цч?: 3\n???а??цчз? а?я?в?з: 1\n\n?прп ?пнп?п - ?п?ча зц?? д??а?????? нп??пча???з ?п ?пнп???? ??вп?аф? н? д?я???нп в ц??н?????? ?я?з??.\n\n??жя? д??п??зпч? з ?ая дяав?????а?! ? ?ч?? ?п?зпч?зп???? а?я? з? а зпр в??п?нп ?чдяпзач?ц? з ц?????? а ?з??впч?????? д?ч?р?цчза?, ?ч?ж? цдпцча ?пра? д?рацч?? ня???? ? нп??пча???з, в?ч?я?? ц??зп д??ача?п ??цч?впф ?я????п!????в? з??цч? з? ц????ч? дя??н???ч? зц? дя?дфчцчзаф а з?я??ч? ?аз?ч??? н????.\n\n???????\n? вп?н?? ??вп?аа ????ч ж?ч? ??цв???в? нп??пча???з. ?прп ???? - ?п?ча зц??, ?ч?ж? д?я??ча в ц??н?????? ?чпд?.");
+    setlocale(LC_ALL, "RU");
+    printf("РџР РђР’РР›Рђ РР“Р Р«\nРќР°Р·РІР°РЅРёРµ: РџРѕРёСЃРє РґР°Р»РјР°С‚РёРЅС†РµРІ\nРЎР»РѕР¶РЅРѕСЃС‚СЊ: 3\nРљРѕР»РёС‡РµСЃС‚РІРѕ РёРіСЂРѕРєРѕРІ: 1\n\nР’ СЌС‚РѕР№ Р·Р°С…РІР°С‚С‹РІР°СЋС‰РµР№ РёРіСЂРµ РІС‹ Рё РІР°С€ РєРѕРјР°РЅРґР° РѕС‚РїСЂР°РІРёС‚РµСЃСЊ РІ СЃР»РѕР¶РЅРѕРµ Рё СѓРІР»РµРєР°С‚РµР»СЊРЅРѕРµ РїСѓС‚РµС€РµСЃС‚РІРёРµ, С‡С‚РѕР±С‹ СЃРїР°СЃС‚Рё РЅР°С€РёС… РїСѓС€РёСЃС‚С‹С… РґСЂСѓР·РµР№ вЂ“ РґР°Р»РјР°С‚РёРЅС†РµРІ, РєРѕС‚РѕСЂС‹С… СЃРЅРѕРІР° РїРѕС…РёС‚РёР»Р° Р¶РµСЃС‚РѕРєР°СЏ РљСЂСѓСЌР»Р»Р°! РўРѕР»СЊРєРѕ РІРјРµСЃС‚Рµ РІС‹ СЃРјРѕР¶РµС‚Рµ РїСЂРµРѕРґРѕР»РµС‚СЊ РІСЃРµ РїСЂРµРїСЏС‚СЃС‚РІРёСЏ Рё РІРµСЂРЅСѓС‚СЊ Р¶РёРІРѕС‚РЅС‹С… РґРѕРјРѕР№.\n\nР’Р°С€Р° Р·Р°РґР°С‡Р° вЂ“ РЅР°Р№С‚Рё РІСЃРµС… РїРѕС…РёС‰РµРЅРЅС‹С… РґР°Р»РјР°С‚РёРЅС†РµРІ РЅР° Р·Р°РґР°РЅРЅС‹С… Р»РѕРєР°С†РёСЏС…. \nРРіСЂР° СЃС‡РёС‚Р°РµС‚СЃСЏ Р·Р°РІРµСЂС€РµРЅРЅРѕР№, РєРѕРіРґР° РІСЃРµ РґР°Р»РјР°С‚РёРЅС†С‹ Р±СѓРґСѓС‚ РЅР°Р№РґРµРЅС‹ Рё РІРѕР·РІСЂР°С‰РµРЅС‹ РґРѕРјРѕР№.\n");
     if (StartPlay() == 1) {
-        do {
-            Player player;
-            getName(player.name); // ?????п?? а?ф а?я?вп
+        Player player;
+        getName(player.name);
 
-            player.countDalmatinsFound = 0;
-            // ?яа??я а?а?ап?а?п?аа ??вп?аа а нп??пча??п
-            Location location;
-            strcpy(location.name, "?пяв");
-            location.countDalmatins = 1; // ?ж??? в ??а??цчз? нп??пча???з з ??вп?аа
-            strcpy(location.dalmatians[0].name, "?пч?"); // ??а?ап?а?п?аф нп??пча??п
-            location.dalmatians[0].found = false;
+        int countALLdalmatins = 4;
 
-            strcpy(location.place.name, "??я?зпф д???пнвп");
-            location.place.dalmatian = location.dalmatians[0]; // ?яацзпазп?? нп??пча??п ??цч?д??????а?
+        player.countDalmatinsFound = 0;
+        
+        Location location[2];
+        location[0].countDalmatins = 3;
 
-            // ?яа??я д?ацвп нп??пча??п
-            dalmatianFound(player, location.place);
+        strcpy(location[0].name, "РЎРїР°Р»СЊРЅСЏ");
+        location[0].countPlace = 5;
 
-            // ??з?н в??а??цчзп ?п?н????? нп??пча???з а?я?вп
-            std::cout << "?ж??? в??а??цчз? ?п?н????? нп??пча???з: " << player.countDalmatinsFound << std::endl;
+        strcpy(location[0].dalmatians[0].name, "РџР°С‚С‡");
+        location[0].dalmatians[0].found = false;
+        strcpy(location[0].dalmatians[1].name, "РџСЌРґРґРё");
+        location[0].dalmatians[1].found = false;
+        strcpy(location[0].dalmatians[2].name, "РџРѕРЅРіРѕ");
+        location[0].dalmatians[2].found = false;
+        strcpy(location[0].dalmatians[3].name, "Р РѕР»Р»Рё");
+        location[0].dalmatians[3].found = false;
 
-        } while (AreYouShureExit() == 0);
-   }
-    else  if (StartPlay() == 1) AreYouShureExit();
-    else printf("Повторите ввод.\n");
+        strcpy(location[0].place[0].name, "\n 1. РЁРєР°С„");
+        location[0].place[0].existDalmatian = false;
+        location[0].place[0].dalmatian = location[0].dalmatians[0];
+        strcpy(location[0].place[1].name, "\n 2. РўСѓРјР±Р°");
+        location[0].place[1].existDalmatian = false;
+        location[0].place[1].dalmatian = location[0].dalmatians[1];
+        strcpy(location[0].place[2].name, "\n 3. РљСЂРѕРІР°С‚СЊ");
+        location[0].place[2].existDalmatian = true;
+        location[0].place[2].dalmatian = location[0].dalmatians[2];
+        strcpy(location[0].place[3].name, "\n 4. РљРѕСЂРѕР±РєР°");
+        location[0].place[3].existDalmatian = true;
+        location[0].place[3].dalmatian = location[0].dalmatians[2];
+        strcpy(location[0].place[4].name, "\n 5. РџРѕР»РєР°");
+        location[0].place[4].existDalmatian = true;
+        location[0].place[4].dalmatian = location[0].dalmatians[2];
+
+        Level_1(player, location[0],location[0]);
+        
+       
+
+        int YesOrNo = TransferLastLocation(player, location[0], location[0], countALLdalmatins);
+        Cage cage;
+        strcpy(cage.answerCode, "17F");
+        if (YesOrNo == 0) {
+            strcpy(location[1].name, "РџРѕРґРІР°Р»");
+            location[1].countPlace = 3;
 
 
-  
+            strcpy(location[1].place[0].name, "\n 1. Р‘РѕС‡РєР°");
+            location[1].place[0].existDalmatian = false;
+            strcpy(location[1].place[1].name, "\n 2. РљР»РµС‚РєР°");
+            location[1].place[1].existDalmatian = true;
+            location[1].place[1].dalmatian = location[0].dalmatians[3];
+            strcpy(location[1].place[2].name, "\n 3. РЁРєР°С„");
+            location[1].place[2].existDalmatian = false;
+
+            Level_2(player, location[1], location[0], cage, countALLdalmatins);
+        }
+        else if (YesOrNo == 1) AreYouShureExit();
+        else printf("РџРѕРІС‚РѕСЂРёС‚Рµ РІРІРѕРґ.\n");
+    printf("\nРљРѕРЅРµС† РёРіСЂС‹\n");
+    }
+    else  if (StartPlay() == 0) AreYouShureExit();
+    else printf("РџРѕРІС‚РѕСЂРёС‚Рµ РІРІРѕРґ.\n");
     return 0;
 }
 
-void dalmatianFound(Player& player, PlaceWithDalmatian& place) {
-    if (!place.dalmatian.found) {
-        player.countDalmatinsFound++; // ?з??а???а? в??а??цчзп ?п?н????? нп??пча???з
-        place.dalmatian.found = true; // ?ж??з???а? цчпч?цп ?п?н?????? нп??пча??п
+int PrintLocationPlace(Location& location) {
+    int numberPlace;
+    for (int i = 0; i < location.countPlace; i++) {
+        printf("%s", location.place[i].name);
+    }
+    printf("\n\nР’РІРµРґРёС‚Рµ РїСѓРЅРєС‚: ");
+    scanf("%d", &numberPlace);
+    while (getchar() != '\n'); // РћС‡РёС‰Р°РµРј Р±СѓС„РµСЂ РІРІРѕРґР° РѕС‚ СЃРёРјРІРѕР»РѕРІ РґРѕ '\n'
+    return numberPlace;
+}
+void Level_1(Player& player, Location& location, Location& printDogs) {
+    while (player.countDalmatinsFound < location.countDalmatins) {
+
+        int number;
+        number = PrintLocationPlace(location);
+
+        switch (number) {
+        case 1:
+            dalmatianFound(player, location, printDogs, number);
+            break;
+        case 2:
+            dalmatianFound(player, location, printDogs, number);
+            break;
+        case 3:
+            dalmatianFound(player, location, printDogs, number);
+            break;
+        case 4:
+            dalmatianFound(player, location, printDogs, number);
+            break;
+        case 5:
+            dalmatianFound(player, location, printDogs, number);
+            break;
+        default: 
+            printf("РџРѕРІС‚РѕСЂРёС‚Рµ РІРІРѕРґ.\n");
+            break;
+        }
     }
 }
 
+void Level_2(Player& player, Location& location, Location& printDogs, Cage& cage, int countALLdalmatins) {
+    while (player.countDalmatinsFound < location.countDalmatins || player.countDalmatinsFound < countALLdalmatins) {
+        int number;
+        number = PrintLocationPlace(location);
+
+        switch (number) {
+        case 1:
+            dalmatianFound(player, location, printDogs, number);
+            break;
+        case 2:
+            printf("\nРћ РЅРµС‚! РљР»РµС‚РєР° Р·Р°РєСЂС‹С‚Р° РЅР° Р·Р°РјРѕРє! Р’Р°Рј РЅСѓР¶РЅРѕ РѕС‚РіР°РґР°С‚СЊ РєРѕРґ!\n");
+            CodeOfCage(player, location, printDogs, cage, number);
+            break;
+        case 3:
+            dalmatianFound(player, location, printDogs, number);
+            break;
+        default: 
+            printf("РџРѕРІС‚РѕСЂРёС‚Рµ РІРІРѕРґ.\n");
+            break;
+        }
+    }
+}
+
+int TransferLastLocation(Player& player, Location& location, Location& printDogs, int countALLdalmatins) {
+    char symbol;
+    if (player.countDalmatinsFound == location.countDalmatins && player.countDalmatinsFound < countALLdalmatins) {
+        printf("\n\nРќР°Р¶РјРёС‚Рµ *, С‡С‚РѕР±С‹ РїРµСЂРµР№С‚Рё Рє СЃР»РµРґСѓСЋС‰РµР№ Р»РѕРєР°С†РёРё\nРќР°Р¶РјРёС‚Рµ ESC, С‡С‚РѕР±С‹ РІС‹Р№С‚Рё РёР· РёРіСЂС‹\n");
+        do {
+            scanf("%c", &symbol);
+        } while (symbol != '*');
+        while (getchar() != '\n'); // РћС‡РёС‰Р°РµРј Р±СѓС„РµСЂ РІРІРѕРґР° РѕС‚ СЃРёРјРІРѕР»РѕРІ РґРѕ '\n'
+    }
+    if (symbol == '*') return 0;
+    else if (symbol == 27) return 1;
+    else return -1;
+}
+
+int getHint() {
+    printf("\nРќР°Р¶РјРёС‚Рµ *, С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РїРѕРґСЃРєР°Р·РєСѓ\n");
+    char symbol;
+    do {
+        scanf("%c", &symbol);
+    } while (symbol != '*');
+    while (getchar() != '\n'); // РћС‡РёС‰Р°РµРј Р±СѓС„РµСЂ РІРІРѕРґР° РѕС‚ СЃРёРјРІРѕР»РѕРІ РґРѕ '\n'
+    if (symbol == '*') {
+        printf("\nРљРѕРґ СЃРѕСЃС‚РѕРёС‚ РёР· С‚СЂС‘С… СЃРёРјРІРѕР»РѕРІ. Р§С‚РѕР±С‹ РЅР°Р№С‚Рё РєР°Р¶РґС‹Р№ СЃРёРјРІРѕР» РІР°Рј РЅСѓР¶РЅРѕ:\n1) РїРµСЂРµРІРµСЃС‚Рё С‡РёСЃР»Рѕ 127 РІ РґРІРѕРёС‡РЅСѓСЋ, РІРѕСЃСЊРјРµСЂРёС‡РЅСѓСЋ Рё С€РµСЃС‚РЅР°РґС†Р°С‚РёСЂРёС‡РЅСѓСЋ СЃРёСЃС‚РµРјС‹ СЃС‡РёСЃР»РµРЅРёСЏ;\n2) РєР°Р¶РґС‹Р№ РїРѕСЃР»РµРґРЅРёР№ СЃРёРјРІРѕР» Р±СѓРґРµС‚ СЏРІР»СЏС‚СЊСЃСЏ С‡Р°СЃС‚СЊСЋ РєРѕРґР°\n\n");
+        return 0;
+    }
+}
+
+ void CodeOfCage(Player& player, Location& location, Location& printDogs, Cage& cage, int number) {
+     if (getHint() == 0) {
+         printf("\nР’РІРµРґРёС‚Рµ РєРѕРґ:\n");
+         scanf("%3s", cage.inputCode);
+         while (getchar() != '\n'); // РћС‡РёС‰Р°РµРј Р±СѓС„РµСЂ РІРІРѕРґР° РѕС‚ СЃРёРјРІРѕР»РѕРІ РґРѕ '\n'
+
+         if (strcmp(cage.inputCode, cage.answerCode) == 0) {
+             printf("РЈСЂР°! Р’С‹ РѕСЃРІРѕР±РѕРґРёР»Рё РґР°Р»РјР°С‚РёРЅС†Р°!\n");
+             dalmatianFound(player, location, printDogs, number);
+         }
+     }
+    else printf("РљРѕРґ РЅРµРІРµСЂРµРЅ. РџРѕРІС‚РѕСЂРёС‚Рµ РІРІРѕРґ.\n");
+}
+
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РЅР°Р№РґРµРЅРЅРѕРіРѕ РґР°Р»РјР°С‚РёРЅС†Р°
+void dalmatianFound(Player& player, Location& location, Location& printDogs, int number) {
+    if (location.place[number - 1].existDalmatian == true &&
+        location.place[number - 1].dalmatian.found == false) {
+        player.countDalmatinsFound++;
+        location.place[number - 1].dalmatian.found = true; // Р”Р°Р»РјР°С‚РёРЅРµС† РЅР°Р№РґРµРЅ
+        location.place[number - 1].existDalmatian = false;
+
+        ViewingFoundDalmatians(player, printDogs);
+    }
+    else {
+        printf("РЈРІС‹, Р·РґРµСЃСЊ РЅРёРєРѕРіРѕ РЅРµС‚\n");
+    }
+}
+
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РІС‹РІРѕРґР° РЅР°Р№РґРµРЅРЅС‹С… РґР°Р»РјР°С‚РёРЅС†РµРІ
+void ViewingFoundDalmatians(Player& player, Location& printDogs) {
+    printf("\nР’С‹ РЅР°С€Р»Рё %d/4 РґР°Р»РјР°С‚РёРЅС†РµРІ:\n", player.countDalmatinsFound);
+    for (int i = 0; i < player.countDalmatinsFound; i++) {
+        printf("%s\n", printDogs.dalmatians[i].name);
+    }
+}
+
+void printCompliments() {
+    printf("\nРџРѕР·РґСЂР°РІР»СЏРµРј! РЈСЂРѕРІРµРЅСЊ РїСЂРѕР№РґРµРЅ!");
+}
 void getName(char* name) {
-    printf("\n?з?нач? зпр? а?ф: ");
+    printf("\nР’РІРµРґРёС‚Рµ РІР°С€Рµ РёРјСЏ: ");
     scanf("%s", name);
+    while (getchar() != '\n'); // РћС‡РёС‰Р°РµРј Р±СѓС„РµСЂ РІРІРѕРґР° РѕС‚ СЃРёРјРІРѕР»РѕРІ РґРѕ '\n'
+
 }
 
 int StartPlay() {
     char symbol;
-    printf("?я??рў? , §ў?ц« ?я§яў¬ р? Ј, §ў?ц« ?яч? Ёрў¬ р? Ј");
+    printf("\nРќР°Р¶РјРёС‚Рµ ENTER, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ РёРіСЂСѓ\nESC, С‡С‚РѕР±С‹ Р·Р°РІРµСЂС€РёС‚СЊ РёРіСЂСѓ\n");
     scanf("%c", &symbol);
+
     if (symbol == '\n') {
         return 1;
     }
-    else if (symbol == '\n') {
+    else if (symbol == 27) {
         return 0;
     }
-    else {    
+    else {
         return -1;
     }
 }
 
 int AreYouShureExit() {
     char YesOrNo[3];
-    printf("Вы уверены, что хотите выйти из игры?");
+    printf("Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РІС‹Р№С‚Рё РёР· РёРіСЂС‹?");
     scanf("%3s", YesOrNo);
-    if (strcmp(YesOrNo, "да") || strcmp(YesOrNo, "Да")) {
+    while (getchar() != '\n'); // РћС‡РёС‰Р°РµРј Р±СѓС„РµСЂ РІРІРѕРґР° РѕС‚ СЃРёРјРІРѕР»РѕРІ РґРѕ '\n'
+    if (strcmp(YesOrNo, "РґР°") || strcmp(YesOrNo, "Р”Р°")) {
         return 1;
     }
-    else if (strcmp(YesOrNo, "нет") || strcmp(YesOrNo, "Нет")) {
+    else if (strcmp(YesOrNo, "РЅРµС‚") || strcmp(YesOrNo, "РќРµС‚")) {
         return 0;
     }
     else {
@@ -123,12 +295,13 @@ int AreYouShureExit() {
 }
 
 
-// ?пд?цв дя??яп???: CTRL+F5 а?а ???? "?ч?пнвп" > "?пд?цв ж?? ?ч?пнва"
-// ?ч?пнвп дя??яп???: F5 а?а ???? "?ч?пнвп" > "?пд?цчач? ?ч?пнв?"
-// ??з?ч? д? ?п?п?? япж?ч? 
-//   1. ? ?в?? ?ж??я?зпч??ф я?р??а? ????? н?жпз?фч? эп??? а ?дяпз?фч? а?а.
-//   2. ? ?в?? Team Explorer ????? д?нв???ач?цф в цацч??? ?дяпз???аф з?яцаф?а.
-//   3. ? ?в?? "????н??? нп????" ????? дя?ц?пчяазпч? з???н??? нп???? цж?ява а ня??а? ц??ж???аф.
-//   4. ? ?в?? "?дац?в ?раж?в" ????? дя?ц?пчяазпч? ?ражва.
-//   5. ??ц??н?зпч????? з?ж?яач? д??вч? ???? "?я??вч" > "??жпзач? ??з?? ??????ч", ?ч?ж? ц??нпч? эп??? в?нп, а?а "?я??вч" > "??жпзач? ц???цчз???а? ??????ч", ?ч?ж? н?жпзач? з дя??вч ц???цчз???а? эп??? в?нп.
-//   6. ?ч?ж? ц??зп ?чвя?ч? ?ч?ч дя??вч д????, з?ж?яач? д??вч? ???? "?п??" > "?чвя?ч?" > "?я??вч" а з?ж?яач? SLN-эп??.
+
+// ?ГЇГ¤?Г¶Гў Г¤Гї??ГїГЇ???: CTRL+F5 Г ?Г  ???? "?Г·?ГЇГ­ГўГЇ" > "?ГЇГ¤?Г¶Гў Г¦?? ?Г·?ГЇГ­ГўГ "
+// ?Г·?ГЇГ­ГўГЇ Г¤Гї??ГїГЇ???: F5 Г ?Г  ???? "?Г·?ГЇГ­ГўГЇ" > "?ГЇГ¤?Г¶Г·Г Г·? ?Г·?ГЇГ­Гў?"
+// ??Г§?Г·? Г¤? ?ГЇ?ГЇ?? ГїГЇГ¦?Г·? 
+//   1. ? ?Гў?? ?Г¦??Гї?Г§ГЇГ·??Гґ Гї?Г°??Г ? ????? Г­?Г¦ГЇГ§?ГґГ·? ГЅГЇ??? Г  ?Г¤ГїГЇГ§?ГґГ·? Г ?Г .
+//   2. ? ?Гў?? Team Explorer ????? Г¤?Г­Гў???Г Г·?Г¶Гґ Гў Г¶Г Г¶Г·??? ?Г¤ГїГЇГ§???Г Гґ Г§?ГїГ¶Г Гґ?Г .
+//   3. ? ?Гў?? "????Г­??? Г­ГЇ????" ????? Г¤Гї?Г¶?ГЇГ·ГїГ Г§ГЇГ·? Г§???Г­??? Г­ГЇ???? Г¶Г¦?ГїГўГ  Г  Г­Гї??Г ? Г¶??Г¦???Г Гґ.
+//   4. ? ?Гў?? "?Г¤Г Г¶?Гў ?Г°Г Г¦?Гў" ????? Г¤Гї?Г¶?ГЇГ·ГїГ Г§ГЇГ·? ?Г°Г Г¦ГўГ .
+//   5. ??Г¶??Г­?Г§ГЇГ·????? Г§?Г¦?ГїГ Г·? Г¤??ГўГ·? ???? "?Гї??ГўГ·" > "??Г¦ГЇГ§Г Г·? ??Г§?? ??????Г·", ?Г·?Г¦? Г¶??Г­ГЇГ·? ГЅГЇ??? Гў?Г­ГЇ, Г ?Г  "?Гї??ГўГ·" > "??Г¦ГЇГ§Г Г·? Г¶???Г¶Г·Г§???Г ? ??????Г·", ?Г·?Г¦? Г­?Г¦ГЇГ§Г Г·? Г§ Г¤Гї??ГўГ· Г¶???Г¶Г·Г§???Г ? ГЅГЇ??? Гў?Г­ГЇ.
+//   6. ?Г·?Г¦? Г¶??Г§ГЇ ?Г·ГўГї?Г·? ?Г·?Г· Г¤Гї??ГўГ· Г¤????, Г§?Г¦?ГїГ Г·? Г¤??ГўГ·? ???? "?ГЇ??" > "?Г·ГўГї?Г·?" > "?Гї??ГўГ·" Г  Г§?Г¦?ГїГ Г·? SLN-ГЅГЇ??.
