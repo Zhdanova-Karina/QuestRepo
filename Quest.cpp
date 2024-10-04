@@ -1,6 +1,5 @@
 // Quest.cpp : ?÷?÷ ýï?? ö?í?ÿ?à÷ ý??â?à? "main". ?í?ö? ?ï?à?ï?÷öô à ?ïâï??àçï?÷öô ç?ä?????à? äÿ??ÿï???.
 //
-
 #pragma warning(disable : 4996)
 #define CRT_SECURE_NO_WARNINGS
 
@@ -45,85 +44,118 @@ void getName(char* name);
 int StartPlay();
 int AreYouShureExit();
 int PrintLocationPlace(Location& location);
+void printCompliments();
 void Level_1(Player& player, Location& location, Location& printDogs);
 void Level_2(Player& player, Location& location, Location& printDogs, Cage& cage, int countALLdalmatins);
 void ViewingFoundDalmatians(Player& player, Location& printDogs);
 int TransferLastLocation(Player& player, Location& location, Location& printDogs, int countALLdalmatins);
 void CodeOfCage(Player& player, Location& location, Location& printDogs, Cage& cage, int number);
-int getHint();
+void initializeLocationONE(Location& location);
+void initializeLocationTWO(Location& location, Location& dalmatians);
+void initializeCodeForCage(Cage& cage);
+void initializePlayer(Player& player);
+int getHintForCode();
+void Rules();
+
 
 int main()
 {
     setlocale(LC_ALL, "RU");
-    printf("ПРАВИЛА ИГРЫ\nНазвание: Поиск далматинцев\nСложность: 3\nКоличество игроков: 1\n\nВ этой захватывающей игре вы и ваш команда отправитесь в сложное и увлекательное путешествие, чтобы спасти наших пушистых друзей – далматинцев, которых снова похитила жестокая Круэлла! Только вместе вы сможете преодолеть все препятствия и вернуть животных домой.\n\nВаша задача – найти всех похищенных далматинцев на заданных локациях. \nИгра считается завершенной, когда все далматинцы будут найдены и возвращены домой.\n");
+    Rules();
     if (StartPlay() == 1) {
-        Player player;
-        getName(player.name);
-
         int countALLdalmatins = 4;
 
-        player.countDalmatinsFound = 0;
-        
+        Player player;
+        initializePlayer(player);
+
         Location location[2];
-        location[0].countDalmatins = 3;
+        initializeLocationONE(location[0]);
 
-        strcpy(location[0].name, "Спальня");
-        location[0].countPlace = 5;
-
-        strcpy(location[0].dalmatians[0].name, "Патч");
-        location[0].dalmatians[0].found = false;
-        strcpy(location[0].dalmatians[1].name, "Пэдди");
-        location[0].dalmatians[1].found = false;
-        strcpy(location[0].dalmatians[2].name, "Понго");
-        location[0].dalmatians[2].found = false;
-        strcpy(location[0].dalmatians[3].name, "Ролли");
-        location[0].dalmatians[3].found = false;
-
-        strcpy(location[0].place[0].name, "\n 1. Шкаф");
-        location[0].place[0].existDalmatian = false;
-        location[0].place[0].dalmatian = location[0].dalmatians[0];
-        strcpy(location[0].place[1].name, "\n 2. Тумба");
-        location[0].place[1].existDalmatian = false;
-        location[0].place[1].dalmatian = location[0].dalmatians[1];
-        strcpy(location[0].place[2].name, "\n 3. Кровать");
-        location[0].place[2].existDalmatian = true;
-        location[0].place[2].dalmatian = location[0].dalmatians[2];
-        strcpy(location[0].place[3].name, "\n 4. Коробка");
-        location[0].place[3].existDalmatian = true;
-        location[0].place[3].dalmatian = location[0].dalmatians[2];
-        strcpy(location[0].place[4].name, "\n 5. Полка");
-        location[0].place[4].existDalmatian = true;
-        location[0].place[4].dalmatian = location[0].dalmatians[2];
+        Cage cage;
+        initializeCodeForCage(cage);
 
         Level_1(player, location[0],location[0]);
-        
-       
+        printCompliments();
 
         int YesOrNo = TransferLastLocation(player, location[0], location[0], countALLdalmatins);
-        Cage cage;
-        strcpy(cage.answerCode, "17F");
-        if (YesOrNo == 0) {
-            strcpy(location[1].name, "Подвал");
-            location[1].countPlace = 3;
-
-
-            strcpy(location[1].place[0].name, "\n 1. Бочка");
-            location[1].place[0].existDalmatian = false;
-            strcpy(location[1].place[1].name, "\n 2. Клетка");
-            location[1].place[1].existDalmatian = true;
-            location[1].place[1].dalmatian = location[0].dalmatians[3];
-            strcpy(location[1].place[2].name, "\n 3. Шкаф");
-            location[1].place[2].existDalmatian = false;
-
+            if (YesOrNo == 0) {
+            initializeLocationTWO(location[1], location[0]);
             Level_2(player, location[1], location[0], cage, countALLdalmatins);
         }
         else if (YesOrNo == 1) AreYouShureExit();
         else printf("Повторите ввод.\n");
+
     printf("\nКонец игры\n");
+
     }
     else  if (StartPlay() == 0) AreYouShureExit();
     else printf("Повторите ввод.\n");
     return 0;
+}
+
+void Rules() {
+    printf("ПРАВИЛА ИГРЫ\nНазвание: Поиск далматинцев\nСложность: 3\nКоличество игроков: 1\n\nВ этой захватывающей игре вы и ваш команда отправитесь в сложное и увлекательное путешествие, чтобы спасти наших пушистых друзей – далматинцев, которых снова похитила жестокая Круэлла! Только вместе вы сможете преодолеть все препятствия и вернуть животных домой.\n\nВаша задача – найти всех похищенных далматинцев на заданных локациях. \nИгра считается завершенной, когда все далматинцы будут найдены и возвращены домой.\n");
+}
+
+void initializeCodeForCage(Cage& cage) {
+    strcpy(cage.answerCode, "17F");
+}
+
+void initializePlayer(Player& player) {
+    getName(player.name);
+    player.countDalmatinsFound = 0;
+}
+
+void initializeLocationONE(Location& location) {
+    location.countDalmatins = 3;
+    // Инициализация локации
+    strcpy(location.name, "Спальня");
+    location.countPlace = 5;
+
+    // Инициализация далматинцев
+    strcpy(location.dalmatians[0].name, "Патч");
+    location.dalmatians[0].found = false;
+    strcpy(location.dalmatians[1].name, "Пэдди");
+    location.dalmatians[1].found = false;
+    strcpy(location.dalmatians[2].name, "Понго");
+    location.dalmatians[2].found = false;
+    strcpy(location.dalmatians[3].name, "Ролли");
+    location.dalmatians[3].found = false;
+
+    // Инициализация мест
+    strcpy(location.place[0].name, "\n 1. Шкаф");
+    location.place[0].existDalmatian = false;
+    location.place[0].dalmatian = location.dalmatians[0];
+
+    strcpy(location.place[1].name, "\n 2. Тумба");
+    location.place[1].existDalmatian = false;
+    location.place[1].dalmatian = location.dalmatians[1];
+
+    strcpy(location.place[2].name, "\n 3. Кровать");
+    location.place[2].existDalmatian = true;
+    location.place[2].dalmatian = location.dalmatians[2];
+
+    strcpy(location.place[3].name, "\n 4. Коробка");
+    location.place[3].existDalmatian = true;
+    location.place[3].dalmatian = location.dalmatians[2];
+
+    strcpy(location.place[4].name, "\n 5. Полка");
+    location.place[4].existDalmatian = true;
+    location.place[4].dalmatian = location.dalmatians[2];
+}
+
+void initializeLocationTWO(Location& location, Location& dalmatians) {
+    // Инициализация локации
+    strcpy(location.name, "Подвал");
+    // Инициализация мест
+    location.countPlace = 3;
+    strcpy(location.place[0].name, "\n 1. Бочка");
+    location.place[0].existDalmatian = false;
+    strcpy(location.place[1].name, "\n 2. Клетка");
+    location.place[1].existDalmatian = true;
+    location.place[1].dalmatian = dalmatians.dalmatians[3];
+    strcpy(location.place[2].name, "\n 3. Шкаф");
+    location.place[2].existDalmatian = false;
 }
 
 int PrintLocationPlace(Location& location) {
@@ -202,7 +234,7 @@ int TransferLastLocation(Player& player, Location& location, Location& printDogs
     else return -1;
 }
 
-int getHint() {
+int getHintForCode() {
     printf("\nНажмите *, чтобы получить подсказку\n");
     char symbol;
     do {
@@ -216,7 +248,7 @@ int getHint() {
 }
 
  void CodeOfCage(Player& player, Location& location, Location& printDogs, Cage& cage, int number) {
-     if (getHint() == 0) {
+     if (getHintForCode() == 0) {
          printf("\nВведите код:\n");
          scanf("%3s", cage.inputCode);
          while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
@@ -234,7 +266,7 @@ void dalmatianFound(Player& player, Location& location, Location& printDogs, int
     if (location.place[number - 1].existDalmatian == true &&
         location.place[number - 1].dalmatian.found == false) {
         player.countDalmatinsFound++;
-        location.place[number - 1].dalmatian.found = true; // Далматинец найден
+        location.place[number - 1].dalmatian.found = true; //Далматинец найден
         location.place[number - 1].existDalmatian = false;
 
         ViewingFoundDalmatians(player, printDogs);
@@ -293,6 +325,7 @@ int AreYouShureExit() {
         return -1;
     }
 }
+
 
 
 
