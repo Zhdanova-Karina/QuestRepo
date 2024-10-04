@@ -23,7 +23,7 @@ struct Player {
 struct PlaceWithDalmatian {
     char name[30];
     Dalmatian dalmatian;
-    bool existDalmatian; 
+    bool existDalmatian;
 };
 
 struct Location {
@@ -45,6 +45,7 @@ int StartPlay();
 int AreYouShureExit();
 int PrintLocationPlace(Location& location);
 void printCompliments();
+void PrintRepeatInput();
 void Level_1(Player& player, Location& location, Location& printDogs);
 void Level_2(Player& player, Location& location, Location& printDogs, Cage& cage, int countALLdalmatins);
 void ViewingFoundDalmatians(Player& player, Location& printDogs);
@@ -62,34 +63,36 @@ int main()
 {
     setlocale(LC_ALL, "RU");
     Rules();
-    if (StartPlay() == 1) {
-        int countALLdalmatins = 4;
+    do {
+        int start = StartPlay();
+        if (start == 1) {
+            int countALLdalmatins = 4;
 
-        Player player;
-        initializePlayer(player);
+            Player player;
+            initializePlayer(player);
 
-        Location location[2];
-        initializeLocationONE(location[0]);
+            Location location[2];
+            initializeLocationONE(location[0]);
 
-        Cage cage;
-        initializeCodeForCage(cage);
+            Cage cage;
+            initializeCodeForCage(cage);
 
-        Level_1(player, location[0],location[0]);
-        printCompliments();
+            Level_1(player, location[0], location[0]);
+            printCompliments();
 
-        int YesOrNo = TransferLastLocation(player, location[0], location[0], countALLdalmatins);
+            int YesOrNo = TransferLastLocation(player, location[0], location[0], countALLdalmatins);
             if (YesOrNo == 0) {
-            initializeLocationTWO(location[1], location[0]);
-            Level_2(player, location[1], location[0], cage, countALLdalmatins);
+                initializeLocationTWO(location[1], location[0]);
+                Level_2(player, location[1], location[0], cage, countALLdalmatins);
+            }
+            else if (YesOrNo == 1) AreYouShureExit();
+            else PrintRepeatInput();
+
+            printf("\nКонец игры\n");
         }
-        else if (YesOrNo == 1) AreYouShureExit();
-        else printf("Повторите ввод.\n");
-
-    printf("\nКонец игры\n");
-
-    }
-    else  if (StartPlay() == 0) AreYouShureExit();
-    else printf("Повторите ввод.\n");
+        else  if (start == 0) AreYouShureExit();
+        else PrintRepeatInput();
+    } while (StartPlay() < 0);
     return 0;
 }
 
@@ -97,6 +100,9 @@ void Rules() {
     printf("ПРАВИЛА ИГРЫ\nНазвание: Поиск далматинцев\nСложность: 3\nКоличество игроков: 1\n\nВ этой захватывающей игре вы и ваш команда отправитесь в сложное и увлекательное путешествие, чтобы спасти наших пушистых друзей – далматинцев, которых снова похитила жестокая Круэлла! Только вместе вы сможете преодолеть все препятствия и вернуть животных домой.\n\nВаша задача – найти всех похищенных далматинцев на заданных локациях. \nИгра считается завершенной, когда все далматинцы будут найдены и возвращены домой.\n");
 }
 
+void PrintRepeatInput() {
+    printf("Повторите ввод.\n");
+}
 void initializeCodeForCage(Cage& cage) {
     strcpy(cage.answerCode, "17F");
 }
@@ -190,8 +196,8 @@ void Level_1(Player& player, Location& location, Location& printDogs) {
         case 5:
             dalmatianFound(player, location, printDogs, number);
             break;
-        default: 
-            printf("Повторите ввод.\n");
+        default:
+            PrintRepeatInput();
             break;
         }
     }
@@ -213,8 +219,8 @@ void Level_2(Player& player, Location& location, Location& printDogs, Cage& cage
         case 3:
             dalmatianFound(player, location, printDogs, number);
             break;
-        default: 
-            printf("Повторите ввод.\n");
+        default:
+            PrintRepeatInput();
             break;
         }
     }
@@ -225,7 +231,7 @@ int TransferLastLocation(Player& player, Location& location, Location& printDogs
     if (player.countDalmatinsFound == location.countDalmatins && player.countDalmatinsFound < countALLdalmatins) {
         printf("\n\nНажмите *, чтобы перейти к следующей локации\nНажмите ESC, чтобы выйти из игры\n");
         do {
-            scanf("%c", &symbol);
+            scanf(" %1c", &symbol);
         } while (symbol != '*');
         while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
     }
@@ -238,7 +244,7 @@ int getHintForCode() {
     printf("\nНажмите *, чтобы получить подсказку\n");
     char symbol;
     do {
-        scanf("%c", &symbol);
+        scanf(" %1c", &symbol);
     } while (symbol != '*');
     while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
     if (symbol == '*') {
@@ -247,18 +253,18 @@ int getHintForCode() {
     }
 }
 
- void CodeOfCage(Player& player, Location& location, Location& printDogs, Cage& cage, int number) {
-     if (getHintForCode() == 0) {
-         printf("\nВведите код:\n");
-         scanf("%3s", cage.inputCode);
-         while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
+void CodeOfCage(Player& player, Location& location, Location& printDogs, Cage& cage, int number) {
+    if (getHintForCode() == 0) {
+        printf("\nВведите код:\n");
+        scanf("%3s", cage.inputCode);
+        while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
 
-         if (strcmp(cage.inputCode, cage.answerCode) == 0) {
-             printf("Ура! Вы освободили далматинца!\n");
-             dalmatianFound(player, location, printDogs, number);
-         }
-     }
-    else printf("Код неверен. Повторите ввод.\n");
+        if (strcmp(cage.inputCode, cage.answerCode) == 0) {
+            printf("Ура! Вы освободили далматинца!\n");
+            dalmatianFound(player, location, printDogs, number);
+        }
+    }
+    else PrintRepeatInput();
 }
 
 // Функция для обработки найденного далматинца
@@ -289,25 +295,25 @@ void printCompliments() {
 }
 void getName(char* name) {
     printf("\nВведите ваше имя: ");
-    scanf("%s", name);
+    scanf("%19s", name);
     while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
 
 }
 
 int StartPlay() {
     char symbol;
-    printf("\nНажмите ENTER, чтобы начать игру\nESC, чтобы завершить игру\n");
-    scanf("%c", &symbol);
-
-    if (symbol == '\n') {
-        return 1;
-    }
-    else if (symbol == 27) {
-        return 0;
-    }
-    else {
-        return -1;
-    }
+    printf("\nНажмите *, чтобы начать игру\nESC, чтобы завершить игру\n");
+        scanf(" %1c", &symbol);
+        while (getchar() != '\n');
+        if (symbol == '*') {
+            return 1;
+        }
+        else if (symbol == 27) {
+            return 0;
+        }
+        else {
+            return -1;
+        }
 }
 
 int AreYouShureExit() {
