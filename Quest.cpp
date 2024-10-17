@@ -40,6 +40,7 @@ public:
     char name[30];
     int countDalmatinsFound;
 public:
+    Player(): countDalmatinsFound(0){}
     void printCompliments();
     int StartPlay();
     void PrintRepeatInput();
@@ -128,29 +129,32 @@ int main()
     Player player;
     Cage cage;
     Location location;
-    player.countDalmatinsFound = 0;
     player.Rules();
-    int start = player.StartPlay();
+    int start;
     do {
+        start = player.StartPlay();
         if (start == 1) {
-            location = Location(true);
-            char nameLocation[30];
-            strcpy(nameLocation, location.name);
-            printf("%s", nameLocation);
-            location.Level_1(location, player);
-            player.printCompliments();
-            int YesOrNo;
-            do{
-            YesOrNo = location.TransferLastLocation(location, player);
-            if (YesOrNo == 0) {
-                cage = Cage();
-                location = Location(false);
+            while (true) {
+                location = Location(true);
+                char nameLocation[30];
                 strcpy(nameLocation, location.name);
                 printf("%s", nameLocation);
-                location.Level_2(location, player);
+                location.Level_1(location, player);
+                player.printCompliments();
+                int YesOrNo;
+                do {
+                    YesOrNo = location.TransferLastLocation(location, player);
+                    if (YesOrNo == 0) {
+                        cage = Cage();
+                        location = Location(false);
+                        strcpy(nameLocation, location.name);
+                        printf("%s", nameLocation);
+                        location.Level_2(location, player);
+                    }
+                    else player.PrintRepeatInput();
+                } while (YesOrNo != 0);
+                break;
             }
-            else player.PrintRepeatInput();
-            } while (YesOrNo != 0);
         }
         else  if (start == 0)break;
         else player.PrintRepeatInput();
@@ -209,7 +213,7 @@ int Cage::getHintForCode() {
     }
 }
 
-void Location::CodeOfCage(Location& location, Player& player,int number) {
+void Location::CodeOfCage(Location& location, Player& player, int number) {
     if (code.getHintForCode() == 0) {
         do {
             printf("\nВведите код:\n");
@@ -263,7 +267,7 @@ void Location::Level_1(Location& location, Player& player) {
 
         switch (number) {
         case 1:
-            location.dalmatianFound(location, player,number);
+            location.dalmatianFound(location, player, number);
             break;
         case 2:
             location.dalmatianFound(location, player, number);
@@ -272,10 +276,10 @@ void Location::Level_1(Location& location, Player& player) {
             location.dalmatianFound(location, player, number);
             break;
         case 4:
-            location.dalmatianFound(location, player,number);
+            location.dalmatianFound(location, player, number);
             break;
         case 5:
-            location.dalmatianFound(location, player,number);
+            location.dalmatianFound(location, player, number);
             break;
         default:
             player.PrintRepeatInput();
@@ -284,20 +288,20 @@ void Location::Level_1(Location& location, Player& player) {
     }
 }
 void Location::Level_2(Location& location, Player& player) {
-    while (player.countDalmatinsFound < location.countDalmatins || player.countDalmatinsFound < location.dalmatians->ALL) {
+    while (player.countDalmatinsFound < location.dalmatians->ALL) {
         int number;
         number = location.PrintLocationPlace(location, player);
 
         switch (number) {
         case 1:
-            location.dalmatianFound(location, player,number);
+            location.dalmatianFound(location, player, number);
             break;
         case 2:
-                printf("\nО нет! Клетка закрыта на замок! Вам нужно отгадать код!\n");
-                CodeOfCage(location, player, number);
+            printf("\nО нет! Клетка закрыта на замок! Вам нужно отгадать код!\n");
+            CodeOfCage(location, player, number);
             break;
         case 3:
-            location.dalmatianFound(location, player,number);
+            location.dalmatianFound(location, player, number);
             break;
         default:
             player.PrintRepeatInput();
