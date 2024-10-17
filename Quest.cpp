@@ -63,36 +63,43 @@ int main()
 {
     setlocale(LC_ALL, "RU");
     Rules();
+    int start;
+    bool endPlay = false;
     do {
-        int start = StartPlay();
+        start = StartPlay();
         if (start == 1) {
-            int countALLdalmatins = 4;
+            while (!endPlay) {
+                int countALLdalmatins = 4;
 
-            Player player;
-            initializePlayer(player);
+                Player player;
+                initializePlayer(player);
 
-            Location location[2];
-            initializeLocationONE(location[0]);
+                Location location[2];
+                initializeLocationONE(location[0]);
 
-            Cage cage;
-            initializeCodeForCage(cage);
+                Cage cage;
+                initializeCodeForCage(cage);
 
-            Level_1(player, location[0], location[0]);
-            printCompliments();
-
-            int YesOrNo = TransferLastLocation(player, location[0], location[0], countALLdalmatins);
-            if (YesOrNo == 0) {
-                initializeLocationTWO(location[1], location[0]);
-                Level_2(player, location[1], location[0], cage, countALLdalmatins);
+                Level_1(player, location[0], location[0]);
+                printCompliments();
+                int YesOrNo;
+                do {
+                    YesOrNo = TransferLastLocation(player, location[0], location[0], countALLdalmatins);
+                    if (YesOrNo == 0) {
+                        initializeLocationTWO(location[1], location[0]);
+                        Level_2(player, location[1], location[0], cage, countALLdalmatins);
+                    }
+                    else PrintRepeatInput();
+                } while (YesOrNo != 0);
+                if (player.countDalmatinsFound == countALLdalmatins) {
+                    endPlay = true;
+                }
             }
-            else if (YesOrNo == 1) AreYouShureExit();
-            else PrintRepeatInput();
-
-            printf("\nКонец игры\n");
         }
-        else  if (start == 0) AreYouShureExit();
+        else  if (start == 0)break;
         else PrintRepeatInput();
-    } while (StartPlay() < 0);
+    } while (start < 0);
+    printf("\nКонец игры\n");
     return 0;
 }
 
@@ -229,15 +236,11 @@ void Level_2(Player& player, Location& location, Location& printDogs, Cage& cage
 int TransferLastLocation(Player& player, Location& location, Location& printDogs, int countALLdalmatins) {
     char symbol;
     if (player.countDalmatinsFound == location.countDalmatins && player.countDalmatinsFound < countALLdalmatins) {
-        printf("\n\nНажмите *, чтобы перейти к следующей локации\nНажмите ESC, чтобы выйти из игры\n");
-        do {
-            scanf(" %1c", &symbol);
-        } while (symbol != '*');
-        while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
+        printf("\n\nНажмите *, чтобы перейти к следующей локации\n");
+        symbol = getch();
     }
     if (symbol == '*') return 0;
-    else if (symbol == 27) return 1;
-    else return -1;
+    else return 1;
 }
 
 int getHintForCode() {
@@ -248,21 +251,23 @@ int getHintForCode() {
     } while (symbol != '*');
     while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
     if (symbol == '*') {
-        printf("\nКод состоит из трёх символов. Чтобы найти каждый символ вам нужно:\n1) перевести число 127 в двоичную, восьмеричную и шестнадцатиричную системы счисления;\n2) каждый последний символ будет являться частью кода\n\n");
+        printf("\nКод состоит из трёх символов. Чтобы найти каждый символ вам нужно:\n1) перевести число 127 в двоичную, восьмеричную и шестнадцатиричную системы счисления;\n2) каждый последний символ будет являться частью кода\nВсе буквы должны быть заглавными!\n\n");
         return 0;
     }
 }
 
 void CodeOfCage(Player& player, Location& location, Location& printDogs, Cage& cage, int number) {
     if (getHintForCode() == 0) {
-        printf("\nВведите код:\n");
-        scanf("%3s", cage.inputCode);
-        while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
+        do {
+            printf("\nВведите код:\n");
+            scanf("%3s", cage.inputCode);
+            while (getchar() != '\n'); // Очищаем буфер ввода от символов до '\n'
 
-        if (strcmp(cage.inputCode, cage.answerCode) == 0) {
-            printf("Ура! Вы освободили далматинца!\n");
-            dalmatianFound(player, location, printDogs, number);
-        }
+            if (strcmp(cage.inputCode, cage.answerCode) == 0) {
+                printf("Ура! Вы освободили далматинца!\n");
+                dalmatianFound(player, location, printDogs, number);
+            }
+        } while (strcmp(cage.inputCode, cage.answerCode) != 0);
     }
     else PrintRepeatInput();
 }
@@ -303,8 +308,7 @@ void getName(char* name) {
 int StartPlay() {
     char symbol;
     printf("\nНажмите *, чтобы начать игру\nESC, чтобы завершить игру\n");
-        scanf(" %1c", &symbol);
-        while (getchar() != '\n');
+    symbol = getch();
         if (symbol == '*') {
             return 1;
         }
