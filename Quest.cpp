@@ -131,6 +131,7 @@ public:
      int TransferLastLocation(Level& level, Game& player);
      void Level_1(Level& level, Game& player);
      void Level_2(Level& level, Game& player);
+     int RangeCheck(int number, int range);
 
 };
 
@@ -234,53 +235,31 @@ int Level::TransferLastLocation(Level& level, Game& player) {
     if (symbol == '*') return 0;
     else return 1;
 }
+int Level::RangeCheck(int number, int range) {
+    if (number > 0 && number < range+1) return 0;
+    else return 1;
+}
+
 void Level::Level_1(Level& level, Game& player) {
     while (player.getCountDalmatins() < level.getCountDalmatins()) {
         int number;
         number = PrintLocationPlace(level, 5);
-
-        switch (number) {
-        case 1:
-            dalmatianFound(level, player, number);
-            break;
-        case 2:
-            dalmatianFound(level, player, number);
-            break;
-        case 3:
-            dalmatianFound(level, player, number);
-            break;
-        case 4:
-            dalmatianFound(level, player, number);
-            break;
-        case 5:
-            dalmatianFound(level, player, number);
-            break;
-        default:
-            player.PrintRepeatInput();
-            break;
-        }
+        if (level.RangeCheck(number, 5) == 0) level.dalmatianFound(level, player, number);
+        else player.PrintRepeatInput();
     }
 }
 void Level::Level_2(Level& level, Game& player) {
     while (player.getCountDalmatins() < MAX_DALMATIANS) {
         int number;
         number = PrintLocationPlace(level, 3);
-
-        switch (number) {
-        case 1:
-            dalmatianFound(level, player, number);
-            break;
-        case 2:
-            printf("\nО нет! Клетка закрыта на замок! Вам нужно отгадать код!\n");
-            cage.CodeOfCage(level, player, number);
-            break;
-        case 3:
-            dalmatianFound(level, player, number);
-            break;
-        default:
-            player.PrintRepeatInput();
-            break;
+        if (level.RangeCheck(number, 3) == 0) { 
+           if (number != 2) level.dalmatianFound(level, player, number); 
+           else {
+               printf("\nО нет! Клетка закрыта на замок! Вам нужно отгадать код!\n");
+               cage.CodeOfCage(level, player, number);
+           }
         }
+        else player.PrintRepeatInput();
     }
 }
 int Cage::getHintForCode() {
@@ -312,3 +291,4 @@ void Cage::CodeOfCage(Level& level, Game& player, int number) {
     }
     else player.PrintRepeatInput();
 }
+
