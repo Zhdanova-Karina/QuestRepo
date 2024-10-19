@@ -10,30 +10,27 @@
 
 class Dalmatian;
 class Cage;
-class Player;
+class Game;
 class PlaceWithDalmatian;
-class Location;
+class Level;
 
 class Cage {
 private:
-    char inputCode[4];
     char answerCode[4];
 public:
     Cage() {
         strcpy(answerCode, "17F");
     }
     int getHintForCode();
-    const char* getInputCode() const { return inputCode; }
     const char* getAnswerCode() const { return answerCode; }
 
-    void setInputCode(char input[4]) { strcpy(inputCode, input); }
 };
 
-class Player {
+class Game {
 private:
     int countDalmatinsFound;
 public:
-    Player(): countDalmatinsFound(0) {}
+    Game() : countDalmatinsFound(0) {}
 
     int getCountDalmatins() { return countDalmatinsFound; }
     void setCountDalmatins() { countDalmatinsFound++; }
@@ -50,11 +47,11 @@ private:
     char name[30];
     int ALL;
 public:
-    Dalmatian(): ALL(4) {}
-    Dalmatian(const char* dogName){
+    Dalmatian() : ALL(4) {}
+    Dalmatian(const char* dogName) {
         strcpy(name, dogName);
     }
-    
+
     const char* getName() const { return name; }
     int getAlldalmatins() { return ALL; }
 
@@ -73,14 +70,14 @@ public:
         strcpy(name, placeName);
     }
 
-    const char* getName() const { return name; } 
+    const char* getName() const { return name; }
 
-    bool getExistDalmatian() {return existDalmatian;}
+    bool getExistDalmatian() { return existDalmatian; }
     void setExistDalmatian(bool trueORfalse) { existDalmatian = trueORfalse; }
 
 };
 
-class Location {
+class Level {
 private:
     char name[30];
     int countDalmatins, countPlace;
@@ -90,9 +87,9 @@ public:
     Dalmatian ALLdalmatin;
     PlaceWithDalmatian place[10];
     Cage cage;
-    Location() {}
+    Level() {}
 
-    Location(bool isBethroom) {
+    Level(bool isBethroom) {
         // Инициализация далматинцев
         dalmatians[0] = Dalmatian("Патч");
         dalmatians[1] = Dalmatian("Пэдди");
@@ -120,19 +117,19 @@ public:
     int getCountDalmatins() { return countDalmatins; }
     const char* getName() const { return name; }
 
-    friend int PrintLocationPlace(Location& location, int countPlace);
-    friend void dalmatianFound(Location& location, Player& player, int number);
-    friend void CodeOfCage(Location& location, Player& player, int number);
-    friend void ViewingFoundDalmatians(Location& location, Player& player);
-    friend int TransferLastLocation(Location& location, Player& player);
-    friend void Level_1(Location& location, Player& player);
-    friend void Level_2(Location& location, Player& player);
+    friend int PrintLocationPlace(Level& level, int countPlace);
+    friend void dalmatianFound(Level& level, Game& player, int number);
+    friend void CodeOfCage(Level& level, Game& player, int number);
+    friend void ViewingFoundDalmatians(Level& level, Game& player);
+    friend int TransferLastLocation(Level& level, Game& player);
+    friend void Level_1(Level& level, Game& player);
+    friend void Level_2(Level& level, Game& player);
 
 };
 
 int main() {
     setlocale(LC_ALL, "RU");
-    Player player;
+    Game player;
     Dalmatian();
     player.Rules();
     int start;
@@ -140,21 +137,21 @@ int main() {
         start = player.StartPlay();
         if (start == 1) {
             while (true) {
-                Location location(true);
+                Level level(true);
                 char nameLocation[30];
-                strcpy(nameLocation, location.getName());
+                strcpy(nameLocation, level.getName());
                 printf("%s", nameLocation);
-                Level_1(location, player);
+                Level_1(level, player);
                 player.printCompliments();
                 int YesOrNo;
                 do {
-                    YesOrNo = TransferLastLocation(location, player);
+                    YesOrNo = TransferLastLocation(level, player);
                     if (YesOrNo == 0) {
-                        location = Location(false);
+                        level = Level(false);
                         Cage();
-                        strcpy(nameLocation, location.getName());
+                        strcpy(nameLocation, level.getName());
                         printf("%s", nameLocation);
-                        Level_2(location, player);
+                        Level_2(level, player);
                     }
                     else player.PrintRepeatInput();
                 } while (YesOrNo != 0);
@@ -168,15 +165,15 @@ int main() {
     return 0;
 }
 
-void Player::Rules() {
+void Game::Rules() {
     printf("ПРАВИЛА ИГРЫ\nНазвание: Поиск далматинцев\nСложность: 3\nКоличество игроков: 1\n\nВ этой захватывающей игре вы и ваш команда отправитесь в сложное и увлекательное путешествие, чтобы спасти наших пушистых друзей – далматинцев, которых снова похитила жестокая Круэлла! Только вместе вы сможете преодолеть все препятствия и вернуть животных домой.\n\nВаша задача – найти всех похищенных далматинцев на заданных локациях. \nИгра считается завершенной, когда все далматинцы будут найдены и возвращены домой.\n");
 }
 
-void Player::printCompliments() {
+void Game::printCompliments() {
     printf("\nПоздравляем! Уровень пройден!");
 }
 
-int Player::StartPlay() {
+int Game::StartPlay() {
     char symbol;
     printf("\nНажмите *, чтобы начать игру\nESC, чтобы завершить игру\n");
     symbol = getch();
@@ -191,14 +188,14 @@ int Player::StartPlay() {
     }
 }
 
-void Player::PrintRepeatInput() {
+void Game::PrintRepeatInput() {
     printf("Повторите ввод.\n");
 }
 
-int PrintLocationPlace(Location& location, int countPlace) {
+int PrintLocationPlace(Level& level, int countPlace) {
     int numberPlace;
     for (int i = 0; i < countPlace; i++) {
-        printf("%s", location.place[i].getName());
+        printf("%s", level.place[i].getName());
     }
     printf("\n\nВведите пункт: ");
     scanf("%d", &numberPlace);
@@ -206,53 +203,53 @@ int PrintLocationPlace(Location& location, int countPlace) {
     return numberPlace;
 }
 
-void ViewingFoundDalmatians(Location& location, Player& player) {
+void ViewingFoundDalmatians(Level& level, Game& player) {
     printf("\nВы нашли %d/4 далматинцев:\n", player.getCountDalmatins());
     for (int i = 0; i < player.getCountDalmatins(); i++) {
-        printf("%s\n", location.dalmatians[i].getName());
+        printf("%s\n", level.dalmatians[i].getName());
     }
 }
 
-void dalmatianFound(Location& location, Player& player, int number) {
-    if (location.place[number - 1].getExistDalmatian() == true) {
+void dalmatianFound(Level& level, Game& player, int number) {
+    if (level.place[number - 1].getExistDalmatian() == true) {
         player.setCountDalmatins();
-        location.place[number - 1].setExistDalmatian(false);
+        level.place[number - 1].setExistDalmatian(false);
 
-        ViewingFoundDalmatians(location, player);
+        ViewingFoundDalmatians(level, player);
     }
     else {
         printf("Увы, здесь никого нет\n");
     }
 }
-int TransferLastLocation(Location& location, Player& player) {
+int TransferLastLocation(Level& level, Game& player) {
     char symbol;
-    if (player.getCountDalmatins() == location.getCountDalmatins() && player.getCountDalmatins() < location.ALLdalmatin.getAlldalmatins()) {
+    if (player.getCountDalmatins() == level.getCountDalmatins() && player.getCountDalmatins() < level.ALLdalmatin.getAlldalmatins()) {
         printf("\n\nНажмите *, чтобы перейти к следующей локации\n");
         symbol = getch();
     }
     if (symbol == '*') return 0;
     else return 1;
 }
-void Level_1(Location& location, Player& player) {
-    while (player.getCountDalmatins() < location.getCountDalmatins()) {
+void Level_1(Level& level, Game& player) {
+    while (player.getCountDalmatins() < level.getCountDalmatins()) {
         int number;
-        number = PrintLocationPlace(location, 5);
+        number = PrintLocationPlace(level, 5);
 
         switch (number) {
         case 1:
-            dalmatianFound(location, player, number);
+            dalmatianFound(level, player, number);
             break;
         case 2:
-            dalmatianFound(location,player, number);
+            dalmatianFound(level, player, number);
             break;
         case 3:
-            dalmatianFound(location,player, number);
+            dalmatianFound(level, player, number);
             break;
         case 4:
-            dalmatianFound(location,player, number);
+            dalmatianFound(level, player, number);
             break;
         case 5:
-            dalmatianFound(location,player, number);
+            dalmatianFound(level, player, number);
             break;
         default:
             player.PrintRepeatInput();
@@ -260,21 +257,21 @@ void Level_1(Location& location, Player& player) {
         }
     }
 }
-void Level_2(Location& location, Player& player) {
-    while (player.getCountDalmatins() < location.ALLdalmatin.getAlldalmatins()) {
+void Level_2(Level& level, Game& player) {
+    while (player.getCountDalmatins() < level.ALLdalmatin.getAlldalmatins()) {
         int number;
-        number = PrintLocationPlace(location, 3);
+        number = PrintLocationPlace(level, 3);
 
         switch (number) {
         case 1:
-            dalmatianFound(location, player, number);
+            dalmatianFound(level, player, number);
             break;
         case 2:
             printf("\nО нет! Клетка закрыта на замок! Вам нужно отгадать код!\n");
-            CodeOfCage(location,player, number);
+            CodeOfCage(level, player, number);
             break;
         case 3:
-            dalmatianFound(location, player, number);
+            dalmatianFound(level, player, number);
             break;
         default:
             player.PrintRepeatInput();
@@ -295,20 +292,19 @@ int getHintForCode() {
     }
 }
 
-void CodeOfCage(Location& location, Player& player, int number) {
+void CodeOfCage(Level& level, Game& player, int number) {
     char input[4];
     if (getHintForCode() == 0) {
         do {
             printf("\nВведите код:\n");
             scanf("%3s", &input);
-            while (getchar() != '\n'); 
-            location.cage.setInputCode(input);
-            if (strcmp(location.cage.getInputCode(), location.cage.getAnswerCode()) == 0) {
+            while (getchar() != '\n');
+            if (strcmp(input, level.cage.getAnswerCode()) == 0) {
                 printf("Ура! Вы освободили далматинца!\n");
-                dalmatianFound(location,player, number);
+                dalmatianFound(level, player, number);
             }
             else  player.PrintRepeatInput();
-        } while (strcmp(location.cage.getInputCode(), location.cage.getAnswerCode()) != 0);
+        } while (strcmp(input, level.cage.getAnswerCode()) != 0);
     }
     else player.PrintRepeatInput();
 }
