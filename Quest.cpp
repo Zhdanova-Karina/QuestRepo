@@ -37,7 +37,7 @@ public:
 
     int getCountDalmatins() { return countDalmatinsFound; }
     void setCountDalmatins() { countDalmatinsFound++; }
-
+    void Play();
     void printCompliments();
     int StartPlay();
     void PrintRepeatInput();
@@ -137,34 +137,17 @@ public:
 
 int main() {
     setlocale(LC_ALL, "RU");
-    Game player;
+    Game game;
     Dalmatian();
-    player.Rules();
+    game.Rules();
     int start;
     do {
-        start = player.StartPlay();
+        start = game.StartPlay();
         if (start == 1) {
-            while (true) {
-                Level level(true);
-                printf("%s", level.getName());
-                level.Level_1(level, player);
-                player.printCompliments();
-                int YesOrNo;
-                do {
-                    YesOrNo = level.TransferLastLocation(level, player);
-                    if (YesOrNo == 0) {
-                        level = Level(false);
-                        Cage();
-                        printf("%s", level.getName());
-                        level.Level_2(level, player);
-                    }
-                    else player.PrintRepeatInput();
-                } while (YesOrNo != 0);
-                break;
-            }
+            game.Play();
         }
         else  if (start == 0)break;
-        else player.PrintRepeatInput();
+        else game.PrintRepeatInput();
     } while (start < 0);
     printf("\nКонец игры\n");
     return 0;
@@ -196,7 +179,27 @@ int Game::StartPlay() {
 void Game::PrintRepeatInput() {
     printf("Повторите ввод.\n");
 }
-
+void Game::Play() {
+    Game game;
+    while (true) {
+        Level level(true);
+        printf("%s", level.getName());
+        level.Level_1(level, game);
+        game.printCompliments();
+        int YesOrNo;
+        do {
+            YesOrNo = level.TransferLastLocation(level, game);
+            if (YesOrNo == 0) {
+                level = Level(false);
+                Cage();
+                printf("%s", level.getName());
+                level.Level_2(level, game);
+            }
+            else game.PrintRepeatInput();
+        } while (YesOrNo != 0);
+        break;
+    }
+}
 int Level::PrintLocationPlace(Level& level, int countPlace) {
     int numberPlace;
     for (int i = 0; i < countPlace; i++) {
