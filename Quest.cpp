@@ -16,9 +16,10 @@ class Level;
 
 class Cage {
 private:
-    char answerCode[4];
+    char *answerCode;
 public:
     Cage() {
+        answerCode = (char*)malloc(sizeof(char));
         strcpy(answerCode, "17F");
     }
     int getHintForCode();
@@ -46,22 +47,21 @@ public:
 
 class Dalmatian {
 private:
-    char name[30];
-    int ALL;
+    char *name;
 public:
-    Dalmatian() : ALL(4) {}
+    Dalmatian() {}
     Dalmatian(const char* dogName) {
+        name = (char*)malloc(sizeof(char));
         strcpy(name, dogName);
     }
 
     const char* getName() const { return name; }
-    int getAlldalmatins() { return ALL; }
 
 };
 
 class PlaceWithDalmatian {
 private:
-    char name[30];
+    char *name;
     bool existDalmatian;
 public:
     Dalmatian dalmatian;
@@ -69,6 +69,7 @@ public:
     PlaceWithDalmatian() {}
     // Конструктор
     PlaceWithDalmatian(const char* placeName, Dalmatian dalmatian, bool trueORfalse) : existDalmatian(trueORfalse) {
+        name = (char*)malloc(sizeof(char));
         strcpy(name, placeName);
     }
 
@@ -81,27 +82,30 @@ public:
 
 class Level {
 private:
-    char name[30];
+    char *name;
     int countDalmatins, countPlace;
 
 public:
-    Dalmatian dalmatians[MAX_DALMATIANS];
-    Dalmatian ALLdalmatin;
-    PlaceWithDalmatian place[10];
+    Dalmatian *dalmatians;
+    
+    PlaceWithDalmatian *place;
     Cage cage;
     Level() {}
 
-    Level(bool isBethroom) {
+    Level(bool isBedroom) {
         // Инициализация далматинцев
+        dalmatians = (Dalmatian*)calloc(MAX_DALMATIANS, sizeof(Dalmatian));
         dalmatians[0] = Dalmatian("Патч");
         dalmatians[1] = Dalmatian("Пэдди");
         dalmatians[2] = Dalmatian("Понго");
         dalmatians[3] = Dalmatian("Ролли");
 
         // Инициализация места
-        if (isBethroom) {
+        if (isBedroom) {
+            name = (char*)malloc(sizeof(char));
             strcpy(name, "Спальня");
             countDalmatins = 3;
+            place = (PlaceWithDalmatian*)calloc(5, sizeof(PlaceWithDalmatian));
             place[0] = PlaceWithDalmatian("\n 1. Шкаф", dalmatians[0], false);
             place[1] = PlaceWithDalmatian("\n 2. Тумба", dalmatians[0], false);
             place[2] = PlaceWithDalmatian("\n 3. Кровать", dalmatians[0], true);
@@ -109,8 +113,10 @@ public:
             place[4] = PlaceWithDalmatian("\n 5. Полка", dalmatians[2], true);
         }
         else {
+            name = (char*)malloc(sizeof(char));
             strcpy(name, "Подвал");
             countDalmatins = 1;
+            place = (PlaceWithDalmatian*)calloc(3, sizeof(PlaceWithDalmatian));
             place[0] = PlaceWithDalmatian("\n 1. Бочка", dalmatians[3], false);
             place[1] = PlaceWithDalmatian("\n 2. Клетка", dalmatians[3], true);
             place[2] = PlaceWithDalmatian("\n 3. Шкаф", dalmatians[3], false);
@@ -139,9 +145,7 @@ int main() {
         if (start == 1) {
             while (true) {
                 Level level(true);
-                char nameLocation[30];
-                strcpy(nameLocation, level.getName());
-                printf("%s", nameLocation);
+                printf("%s", level.getName());
                 level.Level_1(level, player);
                 player.printCompliments();
                 int YesOrNo;
@@ -150,8 +154,7 @@ int main() {
                     if (YesOrNo == 0) {
                         level = Level(false);
                         Cage();
-                        strcpy(nameLocation, level.getName());
-                        printf("%s", nameLocation);
+                        printf("%s", level.getName());
                         level.Level_2(level, player);
                     }
                     else player.PrintRepeatInput();
@@ -224,7 +227,7 @@ void Level::dalmatianFound(Level& level, Game& player, int number) {
 }
 int Level::TransferLastLocation(Level& level, Game& player) {
     char symbol;
-    if (player.getCountDalmatins() == level.getCountDalmatins() && player.getCountDalmatins() < level.ALLdalmatin.getAlldalmatins()) {
+    if (player.getCountDalmatins() == level.getCountDalmatins() && player.getCountDalmatins() < MAX_DALMATIANS) {
         printf("\n\nНажмите *, чтобы перейти к следующей локации\n");
         symbol = getch();
     }
@@ -259,7 +262,7 @@ void Level::Level_1(Level& level, Game& player) {
     }
 }
 void Level::Level_2(Level& level, Game& player) {
-    while (player.getCountDalmatins() < level.ALLdalmatin.getAlldalmatins()) {
+    while (player.getCountDalmatins() < MAX_DALMATIANS) {
         int number;
         number = PrintLocationPlace(level, 3);
 
