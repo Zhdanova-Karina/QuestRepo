@@ -37,7 +37,7 @@ public:
     Game() : countDalmatinsFound(0) {}
 
     int getCountDalmatins() { return countDalmatinsFound; }
-    void setCountDalmatins() { countDalmatinsFound++; }
+    void PlusOne() { countDalmatinsFound++; }
     void Play();
     void printCompliments();
     int StartPlay();
@@ -218,7 +218,7 @@ void Level::ViewingFoundDalmatians(Level& level, Game& player) {
 
 void Level::dalmatianFound(Level& level, Game& player, int number) {
     if (level.place[number - 1].getExistDalmatian() == true) {
-        player.setCountDalmatins();
+        player.PlusOne();
         level.place[number - 1].setExistDalmatian(false);
 
         ViewingFoundDalmatians(level, player);
@@ -292,3 +292,4 @@ void Cage::CodeOfCage(Level& level, Game& player, int number) {
     }
     else player.PrintRepeatInput();
 }
+
