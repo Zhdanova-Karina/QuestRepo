@@ -19,7 +19,7 @@ private:
    char *answerCode;
 public:
     Cage() {
-        answerCode = (char*)malloc(sizeof(char));
+        answerCode = new char[3];
         strcpy(answerCode, "17F");
     }
     
@@ -52,10 +52,10 @@ private:
 public:
     Dalmatian() {}
     Dalmatian(const char* dogName) {
-        name = (char*)malloc(sizeof(char));
+        name = new char[15];
         strcpy(name, dogName);
     }
-   
+    
     const char* getName() const { return name; }
 
 };
@@ -69,7 +69,7 @@ public:
 
     PlaceWithDalmatian() {}
     PlaceWithDalmatian(const char* placeName, Dalmatian dalmatian, bool trueORfalse) : existDalmatian(trueORfalse) {
-        name = (char*)malloc(sizeof(char));
+        name = new char[15];
         strcpy(name, placeName);
     }
     const char* getName() const { return name; }
@@ -91,7 +91,7 @@ public:
 
     Level(bool isBedroom) {
         // Инициализация далматинцев
-        dalmatians = (Dalmatian*)calloc(MAX_DALMATIANS, sizeof(Dalmatian));
+        dalmatians = new Dalmatian[4];
         dalmatians[0] = Dalmatian("Патч");
         dalmatians[1] = Dalmatian("Пэдди");
         dalmatians[2] = Dalmatian("Понго");
@@ -99,10 +99,10 @@ public:
 
         // Инициализация места
         if (isBedroom) {
-            name = (char*)malloc(sizeof(char));
+            name = new char[15];
             strcpy(name, "Спальня");
             countDalmatins = 3;
-            place = (PlaceWithDalmatian*)calloc(5, sizeof(PlaceWithDalmatian));
+            place = new PlaceWithDalmatian[5];
             place[0] = PlaceWithDalmatian("\n 1. Шкаф", dalmatians[0], false);
             place[1] = PlaceWithDalmatian("\n 2. Тумба", dalmatians[0], false);
             place[2] = PlaceWithDalmatian("\n 3. Кровать", dalmatians[0], true);
@@ -111,10 +111,10 @@ public:
             
         }
         else {
-            name = (char*)malloc(sizeof(char));
+            name = new char[15];
             strcpy(name, "Подвал");
             countDalmatins = 1;
-            place = (PlaceWithDalmatian*)calloc(3, sizeof(PlaceWithDalmatian));
+            place = new PlaceWithDalmatian[3];
             place[0] = PlaceWithDalmatian("\n 1. Бочка", dalmatians[3], false);
             place[1] = PlaceWithDalmatian("\n 2. Клетка", dalmatians[3], true);
             place[2] = PlaceWithDalmatian("\n 3. Шкаф", dalmatians[3], false);
@@ -277,7 +277,7 @@ int Cage::getHintForCode() {
 }
 
 void Cage::CodeOfCage(Level& level, Game& player, int number) {
-    char* input = (char*)malloc(sizeof(char));
+    char* input = new char[3];;
     if (getHintForCode() == 0) {
         do {
             printf("\nВведите код:\n");
